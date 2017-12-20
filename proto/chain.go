@@ -6,7 +6,7 @@ type Chain struct {
 
 func (c *Chain) TheCreation() {
 	if len(c.Blocks) == 0 {
-		block := CreateBlock([]byte("The Creation"))
+		block := CreateBlock([]byte("The Creation Block"))
 		block.SetPrevBlockHash([]byte{})
 		c.Blocks = append(c.Blocks, block)
 	}
@@ -20,7 +20,7 @@ func (c *Chain) TheCreationBlock() *Block {
 	return c.Blocks[0]
 }
 
-func (c *Chain) LastBLock() *Block {
+func (c *Chain) GetLastBLock() *Block {
 	if len(c.Blocks) == 0 {
 		return nil
 	}
@@ -30,7 +30,7 @@ func (c *Chain) LastBLock() *Block {
 
 func (c *Chain) AppendBlock(b *Block) {
 	if len(c.Blocks) > 0 {
-		b.SetPrevBlockHash(c.LastBLock().Hash)
+		b.SetPrevBlockHash(c.GetLastBLock().Hash)
 		c.Blocks = append(c.Blocks, b)
 	}
 }

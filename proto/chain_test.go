@@ -19,12 +19,12 @@ func TestTheCreation(t *testing.T) {
 		t.SkipNow()
 	}
 
-	if bytes.Equal(chain.TheCreationBlock().Data, []byte("The Creation")) == false {
+	if bytes.Equal(chain.TheCreationBlock().Data, []byte("The Creation Block")) == false {
 		t.Error("Expected true, got", false)
 		t.SkipNow()
 	}
 
-	if bytes.Equal(chain.Blocks[0].Data, []byte("The Creation")) == false {
+	if bytes.Equal(chain.Blocks[0].Data, []byte("The Creation Block")) == false {
 		t.Error("Expected true, got", false)
 		t.SkipNow()
 	}
@@ -35,12 +35,12 @@ func TestTheCreation(t *testing.T) {
 	}
 }
 
-func TestLastBlock(t *testing.T) {
+func TestGetLastBlock(t *testing.T) {
 
 	chain := new(Chain)
 	chain.TheCreation()
 
-	if chain.Blocks[0] != chain.LastBLock() {
+	if chain.Blocks[0] != chain.GetLastBLock() {
 		t.Error("Expected true, got", false)
 		t.SkipNow()
 	}

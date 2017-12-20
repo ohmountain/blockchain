@@ -29,9 +29,9 @@ func TestCreateBlock(t *testing.T) {
 		t.SkipNow()
 	}
 
-	hash := sha256.Sum256(bytes.Join([][]byte{block.PrevBlockHash, block.Data, []byte(strconv.FormatInt(block.Timestamp, 10))}, []byte{}))
+	hash := sha256.Sum256(bytes.Join([][]byte{block.Data, block.PrevBlockHash, []byte(strconv.FormatInt(block.Timestamp, 10))}, []byte{}))
 	if bytes.Equal(block.Hash, hash[:]) == false {
-		t.Error("Expected true, got", false)
+		t.Error("Expected", hash, ",  got", block.Hash)
 		t.SkipNow()
 	}
 }
