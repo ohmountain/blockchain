@@ -1,10 +1,7 @@
 package proto
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
 	"time"
 )
 
@@ -13,11 +10,17 @@ type Block struct {
 	Data          []byte
 	Hash          []byte
 	PrevBlockHash []byte
+	Nonce         int
+	PoF           *ProofOfWork
 }
 
 func (b *Block) hashing() {
-	hash := sha256.Sum256(bytes.Join([][]byte{b.Data, b.PrevBlockHash, []byte(strconv.FormatInt(b.Timestamp, 10))}, []byte{}))
+
+	pof := NewProofOfWork(b)
+	nonce, hash := pof.Run()
+
 	b.Hash = hash[:]
+	b.Nonce = nonce
 }
 
 func (b *Block) SetPrevBlockHash(prevBlockHash []byte) {
@@ -28,6 +31,10 @@ func (b *Block) SetPrevBlockHash(prevBlockHash []byte) {
 
 func (b *Block) GetHashString() string {
 	return hex.EncodeToString(b.Hash)
+}
+
+func (b *Block) Validate() bool {
+	return b.PoF.Validate()
 }
 
 func CreateBlock(data []byte) *Block {
