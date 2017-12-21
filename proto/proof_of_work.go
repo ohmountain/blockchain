@@ -21,11 +21,11 @@ type ProofOfWork struct {
 }
 
 // 对于一个区块来说，一旦生成hash，那么这个数据是固定的
-func (pof *ProofOfWork) prepareData(nonce int) []byte {
+func (pow *ProofOfWork) prepareData(nonce int) []byte {
 	return bytes.Join([][]byte{
-		pof.block.PrevBlockHash,
-		pof.block.Data,
-		[]byte(strconv.FormatInt(pof.block.Timestamp, 16)),
+		pow.block.PrevBlockHash,
+		pow.block.Data,
+		[]byte(strconv.FormatInt(pow.block.Timestamp, 16)),
 		[]byte(strconv.FormatInt(targetBits, 16)),
 		[]byte(strconv.FormatInt(int64(nonce), 16)),
 	}, []byte{})
@@ -33,28 +33,28 @@ func (pof *ProofOfWork) prepareData(nonce int) []byte {
 
 // 工作量证明
 // 即某一块产生的hash一定小于target
-func (pof *ProofOfWork) Validate() bool {
+func (pow *ProofOfWork) Validate() bool {
 	var hashInt big.Int
 	var hash [32]byte
 
-	data := pof.prepareData(pof.block.Nonce)
+	data := pow.prepareData(pow.block.Nonce)
 	hash = sha256.Sum256(data[:])
 	hashInt.SetBytes(hash[:])
 
-	return hashInt.Cmp(pof.target) == -1
+	return hashInt.Cmp(pow.target) == -1
 }
 
-func (pof *ProofOfWork) Run() (int, []byte) {
+func (pow *ProofOfWork) Run() (int, []byte) {
 	var hashInt big.Int
 	var hash [32]byte
 	nonce := 0
 
 	for nonce < maxNonce {
-		data := pof.prepareData(nonce)
+		data := pow.prepareData(nonce)
 		hash = sha256.Sum256(data)
 		hashInt.SetBytes(hash[:])
 
-		if hashInt.Cmp(pof.target) == -1 {
+		if hashInt.Cmp(pow.target) == -1 {
 			break
 		} else {
 			nonce++
@@ -77,7 +77,7 @@ func NewProofOfWork(b *Block) *ProofOfWork {
 	pow := new(ProofOfWork)
 	pow.target = target
 	pow.block = b
-	b.PoF = pow
+	b.PoW = pow
 
 	return pow
 }

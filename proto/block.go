@@ -11,13 +11,13 @@ type Block struct {
 	Hash          []byte
 	PrevBlockHash []byte
 	Nonce         int
-	PoF           *ProofOfWork
+	PoW           *ProofOfWork
 }
 
 func (b *Block) hashing() {
 
-	pof := NewProofOfWork(b)
-	nonce, hash := pof.Run()
+	pow := NewProofOfWork(b)
+	nonce, hash := pow.Run()
 
 	b.Hash = hash[:]
 	b.Nonce = nonce
@@ -34,7 +34,7 @@ func (b *Block) GetHashString() string {
 }
 
 func (b *Block) Validate() bool {
-	return b.PoF.Validate()
+	return b.PoW.Validate()
 }
 
 func CreateBlock(data []byte) *Block {
