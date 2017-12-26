@@ -5,11 +5,14 @@ import (
 	"crypto/sha256"
 	"math"
 	"math/big"
+	"runtime"
 	"strconv"
 )
 
 var (
 	maxNonce = math.MaxInt64
+	CPUS     = runtime.NumCPU()
+	SUCCESS  = false
 )
 
 // 难度
@@ -45,24 +48,66 @@ func (pow *ProofOfWork) Validate() bool {
 }
 
 func (pow *ProofOfWork) Run() (int, []byte) {
-	var hashInt big.Int
 	var hash [32]byte
 	nonce := 0
 
-	for nonce < maxNonce {
+	ch := make(chan int64, CPUS)
+
+	single := maxNonce / CPUS
+
+	for i := 1; i <= CPUS; i++ {
+		start := (i-1)*single + 1
+		end := single * i
+
+		if i == CPUS {
+			end += maxNonce - single*i
+		}
+
+		go calcHash(pow, ch, int64(start), int64(end))
+	}
+
+	for i := 0; i < CPUS; i++ {
+		n := <-ch
+
+		if n > 0 {
+			nonce = int(n)
+		}
+	}
+
+	hash = sha256.Sum256(pow.prepareData(nonce))
+
+	SUCCESS = false
+
+	return nonce, hash[:]
+}
+
+func calcHash(pow *ProofOfWork, ch chan int64, start int64, end int64) {
+	var hashInt big.Int
+	var hash [32]byte
+	var nonce int = int(start)
+	var final int = int(end)
+
+	for nonce <= final {
 		data := pow.prepareData(nonce)
 		hash = sha256.Sum256(data)
 		hashInt.SetBytes(hash[:])
 
 		if hashInt.Cmp(pow.target) == -1 {
+			SUCCESS = true
+			ch <- int64(nonce)
 			break
 		} else {
 			nonce++
 		}
 
+		if SUCCESS {
+			ch <- 0
+			break
+		}
+
 	}
 
-	return nonce, hash[:]
+	ch <- 0
 }
 
 func NewProofOfWork(b *Block) *ProofOfWork {

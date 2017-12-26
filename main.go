@@ -20,5 +20,4 @@ func main() {
 		fmt.Println("The Creation Block' Nonce: ", b.Nonce)
 		fmt.Println("The Creation Block' Validate: ", b.Validate())
 	}
-
 }
