@@ -11,12 +11,12 @@ import (
 
 var (
 	maxNonce = math.MaxInt64
-	CPUS     = runtime.NumCPU()
+	CPUS     = runtime.NumCPU() * 2
 	SUCCESS  = false
 )
 
 // 难度
-const targetBits = 24
+const targetBits = 16
 
 type ProofOfWork struct {
 	block  *Block
@@ -70,13 +70,12 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 		n := <-ch
 
 		if n > 0 {
+			SUCCESS = false
 			nonce = int(n)
 		}
 	}
 
 	hash = sha256.Sum256(pow.prepareData(nonce))
-
-	SUCCESS = false
 
 	return nonce, hash[:]
 }
@@ -100,7 +99,7 @@ func calcHash(pow *ProofOfWork, ch chan int64, start int64, end int64) {
 			nonce++
 		}
 
-		if SUCCESS {
+		if SUCCESS && pow.block.Validate() {
 			ch <- 0
 			break
 		}
